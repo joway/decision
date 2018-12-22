@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <link rel="shortcut icon" href="/assets/chick.png" type="image/x-png" />
+    <title>Decide It !</title>
+
+    <link rel="stylesheet" href="/lib/flexboxgrid.min.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Noto+Sans+TC"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Noto Sans TC", sans-serif;
+        margin: 0;
+      }
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+      .title {
+        text-align: center;
+        margin-top: 60px;
+        margin-bottom: 50px;
+        font-size: 2.5em;
+      }
+      .logo {
+        width: 48px;
+        margin-left: 12px;
+      }
+
+      .choices,
+      .factors,
+      .histograms {
+        display: flex;
+      }
+      .choice,
+      .factor,
+      .histogram {
+        flex: 1;
+      }
+      .choice {
+        margin: 0 10px;
+      }
+      .histogram div {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .histogram-bar {
+        width: 32px;
+      }
+      .histogram-text {
+        text-align: center;
+        margin-top: 10px;
+      }
+      .split {
+        height: 1px;
+        background-color: #000;
+      }
+      .tb-row {
+        margin-bottom: 32px;
+      }
+      .tb-cell {
+      }
+
+      .add-factor {
+        text-align: center;
+      }
+      .input {
+        text-align: center;
+        border: none;
+        border-bottom: 1px solid #e2d849;
+        font-size: 1em;
+        padding: 4px 8px;
+      }
+      .num-input {
+        width: 30%;
+      }
+      .text-input {
+        width: 80%;
+      }
+      .textarea-input {
+        text-align: center;
+        width: 100%;
+        resize: none;
+        border: none;
+        font-size: 1em;
+        border-bottom: 1px solid #e2d849;
+      }
+    </style>
+
+    <script src="/lib/vue.js"></script>
+  </head>
+  <body>
+    <div id="app" class="row">
+      <div
+        class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3"
+      >
+        <div class="main">
+          <div class="title">
+            {{ title }} <img class="logo" src="/assets/chick.png" />
+          </div>
+
+          <div class="row tb-row center-xs">
+            <div class="col-xs-3">Factor</div>
+            <div class="col-xs-3">Weight</div>
+            <div class="col-xs-6 choices">
+              <div class="choice" v-for="choice in choices">
+                <input
+                  type="text"
+                  class="input text-input"
+                  v-model="choice.alias"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row tb-row center-xs" v-for="factor in factors">
+            <div class="col-xs-3">
+              <textarea
+                :name="factor.num"
+                :id="factor.num"
+                class="textarea-input"
+                v-model="factor.name"
+              ></textarea>
+            </div>
+            <div class="col-xs-3">
+              <input
+                class="input num-input"
+                type="number"
+                min="0"
+                v-model="factor.weight"
+              />
+            </div>
+            <div class="col-xs-6 factors">
+              <div class="factor" v-for="choice in choices">
+                <input
+                  type="number"
+                  class="input num-input"
+                  value="1"
+                  min="0"
+                  v-model="votes[choice.name][factor.num]"
+                  @input="calc"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row tb-row">
+            <div class="col-xs-3 add-factor">
+              <a href="#" @click="addNewFactor"><img src="/assets/add.svg"/></a>
+            </div>
+          </div>
+          <div class="row tb-row" :key="hash">
+            <div class="col-xs-6 col-xs-offset-6 histograms">
+              <div
+                v-for="(choice, index) in choices"
+                class="histogram row center-xs bottom-xs"
+              >
+                <div class="col-xs-6">
+                  <div
+                    class="histogram-bar"
+                    :style="`height: ${calcHeight(choice)}px;background-color: ${colors[index]};`"
+                  ></div>
+                  <div class="histogram-text">{{ calcScore(choice.name) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var title = "Decide It !";
+      var votes = {};
+      var factors = [];
+      var choices = [];
+      var factorNum = 0;
+      function addFactor(name) {
+        factorNum += 1;
+        return {
+          num: factorNum,
+          name: name,
+          weight: 1
+        };
+      }
+      function addChoices(name, alias) {
+        return {
+          name: name,
+          alias: alias || name
+        };
+      }
+      function initVotes(choices, factors) {
+        choices.forEach(function(choice) {
+          factors.forEach(function(factor) {
+            if (votes[choice.name] === undefined) {
+              votes[choice.name] = {};
+            }
+            if (votes[choice.name][factor.num] === undefined) {
+              votes[choice.name][factor.num] = 1;
+            }
+          });
+        });
+      }
+      function calcFactorWeight(factorNum) {
+        var weight = 1;
+        factors.forEach(function(factor) {
+          if (factor.num === factorNum) {
+            weight = parseInt(factor.weight);
+          }
+        });
+        return weight;
+      }
+      function calcScale() {
+        var total = 0;
+        Object.keys(votes).forEach(function(choiceName) {
+          total += calcScore(choiceName);
+        });
+        return 300 / total;
+      }
+      function calcScore(choiceName) {
+        var score = 0;
+        Object.keys(votes[choiceName]).forEach(function(factorNum) {
+          score +=
+            parseInt(votes[choiceName][factorNum]) *
+            calcFactorWeight(parseInt(factorNum));
+        });
+        return score;
+      }
+      function calcHeight(choice) {
+        var scale = calcScale();
+        var height = calcScore(choice.name);
+        return parseInt(height * scale);
+      }
+
+      // mock data
+      factors = [addFactor("Happiness"), addFactor("Sense of achievement")];
+      choices = [addChoices("First", "Choice1"), addChoices("Second", "Choice2")];
+      initVotes(choices, factors);
+      var app = new Vue({
+        el: "#app",
+        data: {
+          title: title,
+          factors: factors,
+          choices: choices,
+          votes: votes,
+          colors: ["#e2d849", "#1677b3"],
+          hash: null
+        },
+        methods: {
+          addFactor: addFactor,
+          calcHeight: calcHeight,
+          calcScore: calcScore,
+          addNewFactor: function() {
+            factors.push(addFactor("New"));
+            initVotes(choices, factors);
+          },
+          calc: function() {
+            this.hash = Math.random();
+          }
+        }
+      });
+    </script>
+
+    <!-- <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-53624533-8"
+    ></script> -->
+    <!-- <script src="https://joway.io/analytics.js"></script> -->
+  </body>
+</html>
