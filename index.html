@@ -22,13 +22,18 @@
       }
       a {
         color: #000;
-        text-decoration: none;
       }
       .title {
         text-align: center;
         margin-top: 60px;
-        margin-bottom: 50px;
+        margin-bottom: 20px;
         font-size: 2.5em;
+      }
+      .title a {
+        text-decoration: none;
+      }
+      .ref {
+        margin-bottom: 30px;
       }
       .logo {
         width: 48px;
@@ -95,7 +100,13 @@
       }
     </style>
 
-    <script src="/lib/vue.js"></script>
+    <script src="/lib/vue.min.js"></script>
+
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-53624533-8"
+    ></script>
+    <script src="https://joway.io/analytics.js"></script>
   </head>
   <body>
     <div id="app" class="row">
@@ -104,9 +115,17 @@
       >
         <div class="main">
           <div class="title">
-            {{ title }} <img class="logo" src="/assets/chick.png" />
+            <a href="/"
+              >{{ title }} <img class="logo" src="/assets/chick.png"
+            /></a>
           </div>
-
+          <div class="row ref">
+            <div class="col-xs-1 col-xs-offset-11">
+              <a href="https://github.com/joway/decision" target="_blank"
+                >@Github</a
+              >
+            </div>
+          </div>
           <div class="row tb-row center-xs">
             <div class="col-xs-3">Factor</div>
             <div class="col-xs-3">Weight</div>
@@ -240,7 +259,10 @@
 
       // mock data
       factors = [addFactor("Happiness"), addFactor("Sense of achievement")];
-      choices = [addChoices("First", "Choice1"), addChoices("Second", "Choice2")];
+      choices = [
+        addChoices("First", "Choice1"),
+        addChoices("Second", "Choice2")
+      ];
       initVotes(choices, factors);
       var app = new Vue({
         el: "#app",
@@ -266,11 +288,5 @@
         }
       });
     </script>
-
-    <!-- <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=UA-53624533-8"
-    ></script> -->
-    <!-- <script src="https://joway.io/analytics.js"></script> -->
   </body>
 </html>
