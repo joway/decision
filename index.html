@@ -50,7 +50,8 @@
       .histogram {
         flex: 1;
       }
-      .choice {
+      .choice,
+      .factor {
         margin: 0 10px;
       }
       .histogram div {
@@ -85,10 +86,10 @@
         padding: 4px 8px;
       }
       .num-input {
-        width: 30%;
+        width: 100%;
       }
       .text-input {
-        width: 80%;
+        width: 100%;
       }
       .textarea-input {
         text-align: center;
@@ -96,7 +97,7 @@
         resize: none;
         border: none;
         font-size: 1em;
-        border-bottom: 1px solid #e2d849;
+        /*border-bottom: 1px solid #e2d849;*/
       }
     </style>
 
@@ -119,16 +120,16 @@
               >{{ title }} <img class="logo" src="/assets/chick.png"
             /></a>
           </div>
-          <div class="row ref">
-            <div class="col-xs-1 col-xs-offset-11">
+          <div class="row ref end-xs">
+            <div class="col-xs-2">
               <a href="https://github.com/joway/decision" target="_blank"
                 >@Github</a
               >
             </div>
           </div>
           <div class="row tb-row center-xs">
-            <div class="col-xs-3">Factor</div>
-            <div class="col-xs-3">Weight</div>
+            <div class="col-xs-3"><b>Factor</b></div>
+            <div class="col-xs-3"><b>Weight</b></div>
             <div class="col-xs-6 choices">
               <div class="choice" v-for="choice in choices">
                 <input
