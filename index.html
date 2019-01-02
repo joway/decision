@@ -28,11 +28,14 @@
       a {
         color: #000;
       }
+      h1 {
+        display: inline;
+      }
       .title {
         text-align: center;
         margin-top: 60px;
         margin-bottom: 20px;
-        font-size: 2.5em;
+        font-size: 1.5em;
       }
       .title a {
         text-decoration: none;
@@ -122,7 +125,7 @@
         <div class="main">
           <div class="title">
             <a href="/"
-              >{{ title }} <img class="logo" src="/assets/chick.png"
+              ><h1>Decide It !</h1> <img class="logo" src="/assets/chick.png"
             /></a>
           </div>
           <div class="row ref end-xs">
@@ -201,7 +204,6 @@
     </div>
 
     <script>
-      var title = "Decide It !";
       var votes = {};
       var factors = [];
       var choices = [];
@@ -273,7 +275,6 @@
       var app = new Vue({
         el: "#app",
         data: {
-          title: title,
           factors: factors,
           choices: choices,
           votes: votes,
