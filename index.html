@@ -9,11 +9,17 @@
     />
     <link rel="shortcut icon" href="/assets/chick.png" type="image/x-png" />
     <title>Decide It ! 🐣 | Make your decision more thoughtful.</title>
-    <meta name="description" content="Writing down all the factors and give them independent weights will help you make a fully considered decision.">
-    <meta name="keywords" content="Decide It, decision, decision online, 决策鸡">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="English">
-    <meta name="author" content="Joway Wang">
+    <meta
+      name="description"
+      content="Writing down all the factors and give them independent weights will help you make a fully considered decision."
+    />
+    <meta
+      name="keywords"
+      content="Decide It, decision, decision online, 决策鸡"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="author" content="Joway Wang" />
 
     <link rel="stylesheet" href="/lib/flexboxgrid.min.css" />
     <link
@@ -83,7 +89,7 @@
       .tb-cell {
       }
 
-      .add-factor {
+      .text-center {
         text-align: center;
       }
       .input {
@@ -107,6 +113,9 @@
         font-size: 1em;
         /*border-bottom: 1px solid #e2d849;*/
       }
+      .block {
+        margin: 0 3px;
+      }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js"></script>
@@ -124,14 +133,19 @@
         <div class="main">
           <div class="title">
             <a href="/"
-              ><h1>Decide It !</h1> <img class="logo" src="/assets/chick.png"
+              ><h1>Decide It !</h1>
+              <img class="logo" src="/assets/chick.png"
             /></a>
           </div>
+          <input
+            type="text"
+            value="x"
+            id="copybox"
+            style="position: relative; left: -10000px;"
+          />
           <div class="row ref end-xs">
             <div class="col-xs-6">
-              <a href="https://github.com/joway/decision" target="_blank"
-                >@Github</a
-              >
+              <a href="#" @click="share"><img src="/assets/share.svg"/></a>
             </div>
           </div>
           <div class="row tb-row center-xs">
@@ -178,7 +192,7 @@
             </div>
           </div>
           <div class="row tb-row">
-            <div class="col-xs-3 add-factor">
+            <div class="col-xs-3 text-center">
               <a href="#" @click="addNewFactor"><img src="/assets/add.svg"/></a>
             </div>
           </div>
@@ -196,6 +210,16 @@
                   <div class="histogram-text">{{ calcScore(choice.name) }}</div>
                 </div>
               </div>
+            </div>
+          </div>
+          <div class="row tb-row end-xs">
+            <div class="col-xs-6">
+              <a
+                href="https://github.com/joway/decision"
+                target="_blank"
+                class="block"
+                >@Github</a
+              >
             </div>
           </div>
         </div>
@@ -263,13 +287,28 @@
         var height = calcScore(choice.name);
         return parseInt(height * scale);
       }
+      function packData(data) {
+        return window.btoa(JSON.stringify(data));
+      }
+      function unpackData(dataStr) {
+        return JSON.parse(window.atob(dataStr));
+      }
+      function getQuery() {
+        var uri = window.location.href.split("?");
+        var query = {};
+        if (uri.length == 2) {
+          var vars = uri[1].split("&");
+          vars.forEach(function(v) {
+            var pos = v.indexOf("=");
+            query[v.substring(0, pos)] = v.substring(pos + 1, v.length);
+          });
+        }
+        return query;
+      }
 
       // mock data
       factors = [addFactor("Openness"), addFactor("Security")];
-      choices = [
-        addChoices("First", "iOS"),
-        addChoices("Second", "Android")
-      ];
+      choices = [addChoices("First", "iOS"), addChoices("Second", "Android")];
       initVotes(choices, factors);
       var app = new Vue({
         el: "#app",
@@ -279,6 +318,17 @@
           votes: votes,
           colors: ["#e2d849", "#1677b3"],
           hash: null
+        },
+        created() {
+          var query = getQuery();
+          var packetStr = query.packet;
+          if (!packetStr) {
+            return;
+          }
+          var packet = unpackData(packetStr);
+          this.factor = packet.factor;
+          this.choices = packet.choices;
+          this.votes = packet.votes;
         },
         methods: {
           addFactor: addFactor,
@@ -290,6 +340,22 @@
           },
           calc: function() {
             this.hash = Math.random();
+          },
+          share: function() {
+            var packed = packData({
+              factors: factors,
+              choices: choices,
+              votes: votes
+            });
+
+            var shareLink = document.location.origin + "/#/?packet=" + packed;
+            var copybox = document.getElementById("copybox");
+            copybox.value = shareLink;
+            copybox.select();
+            var success = document.execCommand("copy");
+            if (success) {
+              alert("Copied share link to clipboard!");
+            }
           }
         }
       });
