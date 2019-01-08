@@ -288,10 +288,10 @@
         return parseInt(height * scale);
       }
       function packData(data) {
-        return window.btoa(JSON.stringify(data));
+        return window.btoa(unescape(encodeURIComponent(JSON.stringify(data))));
       }
       function unpackData(dataStr) {
-        return JSON.parse(window.atob(dataStr));
+        return JSON.parse(decodeURIComponent(escape(window.atob(dataStr))));
       }
       function getQuery() {
         var uri = window.location.href.split("?");
