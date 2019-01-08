@@ -326,9 +326,14 @@
             return;
           }
           var packet = unpackData(packetStr);
-          this.factor = packet.factor;
-          this.choices = packet.choices;
-          this.votes = packet.votes;
+          factors = this.factors = packet.factors;
+          choices = this.choices = packet.choices;
+          Object.keys(votes).forEach(function(key) {
+            delete votes[key]
+          });
+          Object.keys(packet.votes).forEach(function(key) {
+            votes[key] = packet.votes[key];
+          });
         },
         methods: {
           addFactor: addFactor,
